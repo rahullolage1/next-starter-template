@@ -1,88 +1,74 @@
-import Image from "next/image";
+"use client";
+
+import { useCallback, useState } from "react";
 
 export default function Home() {
-	return (
-		<div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-			<main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-				<Image
-					className="dark:invert"
-					src="/next.svg"
-					alt="Next.js logo"
-					width={180}
-					height={38}
-					priority
-				/>
-				<ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-					<li className="mb-2 tracking-[-.01em]">
-						Get started by editing{" "}
-						<code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-							src/app/page.tsx
-						</code>
-						.
-					</li>
-					<li className="tracking-[-.01em]">
-						Save and see your changes instantly.
-					</li>
-				</ol>
+    const [countryCode, setCountryCode] = useState("+91");
+    const [phoneNumber, setPhoneNumber] = useState("");
 
-				<div className="flex gap-4 items-center flex-col sm:flex-row">
-					<a
-						className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-						href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						Read our docs
-					</a>
-				</div>
-			</main>
-			<footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-				<a
-					className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-					href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-					target="_blank"
-					rel="noopener noreferrer"
-				>
-					<Image
-						aria-hidden
-						src="/file.svg"
-						alt="File icon"
-						width={16}
-						height={16}
-					/>
-					Learn
-				</a>
-				<a
-					className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-					href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-					target="_blank"
-					rel="noopener noreferrer"
-				>
-					<Image
-						aria-hidden
-						src="/window.svg"
-						alt="Window icon"
-						width={16}
-						height={16}
-					/>
-					Examples
-				</a>
-				<a
-					className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-					href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-					target="_blank"
-					rel="noopener noreferrer"
-				>
-					<Image
-						aria-hidden
-						src="/globe.svg"
-						alt="Globe icon"
-						width={16}
-						height={16}
-					/>
-					Go to nextjs.org →
-				</a>
-			</footer>
-		</div>
-	);
+    const handleSubmit = useCallback((event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+
+        const ccDigits = countryCode.replace(/[^\d]/g, "");
+        const numDigits = phoneNumber.replace(/[^\d]/g, "");
+        const combined = `${ccDigits}${numDigits}`;
+
+        if (!/^\d{6,15}$/.test(combined)) {
+            alert("Please enter a valid number. Include country code and 6–15 digits total.");
+            return;
+        }
+
+        const waUrl = `https://wa.me/${combined}`;
+        window.open(waUrl, "_blank", "noopener,noreferrer");
+    }, [countryCode, phoneNumber]);
+
+    return (
+        <div className="min-h-screen flex items-center justify-center p-6">
+            <div className="w-full max-w-md rounded-xl border border-black/10 dark:border-white/15 bg-white/60 dark:bg-black/30 backdrop-blur px-6 py-7 shadow-sm">
+                <div className="mb-5">
+                    <h1 className="text-2xl font-semibold">Open WhatsApp</h1>
+                    <p className="text-sm text-black/60 dark:text-white/60 mt-1">Enter country code and mobile number</p>
+                </div>
+
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="flex flex-col gap-2">
+                        <label className="text-sm">Phone number</label>
+                        <div className="flex items-center gap-2">
+                            <input
+                                aria-label="Country code"
+                                type="tel"
+                                inputMode="tel"
+                                className="w-24 rounded-md border border-black/10 dark:border-white/15 bg-transparent px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
+                                value={countryCode}
+                                onChange={(e) => setCountryCode(e.target.value)}
+                                placeholder="+91"
+                                required
+                            />
+                            <input
+                                aria-label="Phone number"
+                                type="tel"
+                                inputMode="tel"
+                                className="w-full rounded-md border border-black/10 dark:border-white/15 bg-transparent px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
+                                value={phoneNumber}
+                                onChange={(e) => setPhoneNumber(e.target.value)}
+                                placeholder="9876543210"
+                                required
+                            />
+                        </div>
+                        <p className="text-xs text-black/50 dark:text-white/50">Country code can include "+". We'll format it for WhatsApp.</p>
+                    </div>
+
+                    <button
+                        type="submit"
+                        className="w-full h-10 rounded-md bg-[#25D366] text-black font-medium hover:opacity-90 transition"
+                        aria-label="Open in WhatsApp"
+                    >
+                        Open in WhatsApp
+                    </button>
+                </form>
+
+                <p className="text-xs text-black/50 dark:text-white/50 mt-4">We do not store your number. It opens WhatsApp via wa.me.</p>
+            </div>
+        </div>
+    );
 }
