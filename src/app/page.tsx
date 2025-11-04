@@ -6,6 +6,11 @@ export default function Home() {
     const [countryCode, setCountryCode] = useState("+91");
     const [phoneNumber, setPhoneNumber] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
+    const [message, setMessage] = useState("");
+    const messageWordCount = useMemo(() => {
+        const words = message.trim().split(/\s+/).filter(Boolean);
+        return message.trim() ? words.length : 0;
+    }, [message]);
 
     const combineDigits = useCallback((cc: string, num: string) => {
         const ccDigits = cc.replace(/[^\d]/g, "");
@@ -35,9 +40,17 @@ export default function Home() {
             return;
         }
 
-        const waUrl = `https://wa.me/${combined}`;
+        if (messageWordCount > 50) {
+            setErrorMessage("Message can be at most 50 words.");
+            return;
+        }
+
+        // no character limit enforcement
+
+        const encoded = message.trim() ? encodeURIComponent(message.trim()) : "";
+        const waUrl = `https://api.whatsapp.com/send?phone=${combined}${encoded ? `&text=${encoded}` : ""}`;
         window.open(waUrl, "_blank", "noopener,noreferrer");
-    }, [countryCode, phoneNumber, combineDigits]);
+    }, [countryCode, phoneNumber, message, combineDigits]);
 
     const isDisabled = useMemo(() => {
         const localDigits = phoneNumber.replace(/[^\d]/g, "");
@@ -57,7 +70,7 @@ export default function Home() {
                     <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight">
                         <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#128C7E] to-[#25D366]">WhatsApp</span> Launcher
                     </h1>
-                    <p className="text-sm sm:text-base text-black/60 dark:text-white/60 mt-2">Enter your country code and mobile number. We&apos;ll open WhatsApp for you.</p>
+                    <p className="text-sm sm:text-base text-black/60 dark:text-white/60 mt-2">Enter country code and mobile number. We&apos;ll open WhatsApp for you.</p>
                 </div>
 
                 <div className="w-full mx-auto max-w-xl rounded-2xl border border-[#25D366]/20 dark:border-[#128C7E]/25 bg-white/75 dark:bg-black/30 backdrop-blur px-6 sm:px-8 py-7 sm:py-8 shadow-[0_10px_30px_-10px_rgba(37,211,102,0.25)]">
@@ -91,6 +104,31 @@ export default function Home() {
                                     placeholder="9876543210"
                                     required
                                 />
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                            <label htmlFor="msg" className="text-sm">Message (optional)</label>
+                            <textarea
+                                id="msg"
+                                aria-label="Message"
+                                rows={3}
+                                className="w-full rounded-lg border border-black/10 dark:border-white/15 bg-transparent px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#25D366]/40 dark:focus:ring-[#25D366]/35 resize-y"
+                                value={message}
+                                onChange={(e) => {
+                                    const next = e.target.value;
+                                    const words = next.trim().split(/\s+/).filter(Boolean);
+                                    if (words.length <= 50) {
+                                        setMessage(next);
+                                    } else {
+                                        setMessage(words.slice(0, 50).join(" "));
+                                    }
+                                }}
+                                placeholder="Hi! I found you via the site…"
+
+                            />
+                            <div className="text-[11px] sm:text-xs text-black/50 dark:text-white/50 mt-1">
+                                {messageWordCount}/50 words
                             </div>
                         </div>
 
