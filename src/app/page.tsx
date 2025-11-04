@@ -22,10 +22,16 @@ export default function Home() {
     const handleSubmit = useCallback((event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
+        const localDigits = phoneNumber.replace(/[^\d]/g, "");
+        if (localDigits.length < 10) {
+            setErrorMessage("Mobile number must have at least 10 digits (spaces allowed).");
+            return;
+        }
+
         const combined = combineDigits(countryCode, phoneNumber);
 
-        if (!/^\d{6,15}$/.test(combined)) {
-            setErrorMessage("Please enter a valid number: 6–15 digits total after combining.");
+        if (!/^\d{10,15}$/.test(combined)) {
+            setErrorMessage("Please enter a valid number: 10–15 digits total after combining.");
             return;
         }
 
@@ -34,19 +40,27 @@ export default function Home() {
     }, [countryCode, phoneNumber, combineDigits]);
 
     const isDisabled = useMemo(() => {
+        const localDigits = phoneNumber.replace(/[^\d]/g, "");
+        if (localDigits.length < 10) return true;
         const combined = combineDigits(countryCode, phoneNumber);
-        return !/^\d{6,15}$/.test(combined);
+        return !/^\d{10,15}$/.test(combined);
     }, [countryCode, phoneNumber, combineDigits]);
 
     return (
-        <div className="min-h-screen p-6 bg-gradient-to-br from-[#f0fff6] via-white to-[#f5faff] dark:from-[#0b1210] dark:via-[#0a0a0a] dark:to-[#0b0f12] flex items-center">
-            <div className="mx-auto w-full max-w-2xl">
+        <div className="relative min-h-screen p-6 flex items-center overflow-hidden bg-gradient-to-br from-[#eafff3] via-[#f7fff9] to-[#ecfff6] dark:from-[#07120c] dark:via-[#0b1a14] dark:to-[#08130e]">
+            {/* decorative green blobs */}
+            <div aria-hidden className="pointer-events-none absolute -top-24 -left-24 h-64 w-64 rounded-full bg-[#25D366]/20 blur-3xl" />
+            <div aria-hidden className="pointer-events-none absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-[#128C7E]/20 blur-3xl" />
+
+            <div className="relative mx-auto w-full max-w-2xl">
                 <div className="flex flex-col items-center text-center mb-8">
-                    <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight">WhatsApp Launcher</h1>
+                    <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight">
+                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#128C7E] to-[#25D366]">WhatsApp</span> Launcher
+                    </h1>
                     <p className="text-sm sm:text-base text-black/60 dark:text-white/60 mt-2">Enter your country code and mobile number. We&apos;ll open WhatsApp for you.</p>
                 </div>
 
-                <div className="w-full mx-auto max-w-xl rounded-2xl border border-black/10 dark:border-white/15 bg-white/70 dark:bg-black/30 backdrop-blur px-6 sm:px-8 py-7 sm:py-8 shadow-sm">
+                <div className="w-full mx-auto max-w-xl rounded-2xl border border-[#25D366]/20 dark:border-[#128C7E]/25 bg-white/75 dark:bg-black/30 backdrop-blur px-6 sm:px-8 py-7 sm:py-8 shadow-[0_10px_30px_-10px_rgba(37,211,102,0.25)]">
                     <form onSubmit={(e) => { setErrorMessage(""); handleSubmit(e); }} className="space-y-5">
                         <div className="grid grid-cols-1 sm:grid-cols-[130px_1fr] gap-3 sm:gap-4">
                             <div className="flex flex-col gap-2">
@@ -56,7 +70,7 @@ export default function Home() {
                                     aria-label="Country code"
                                     type="tel"
                                     inputMode="tel"
-                                    className="w-full rounded-lg border border-black/10 dark:border-white/15 bg-transparent px-3 py-2 h-11 focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
+                                    className="w-full rounded-lg border border-black/10 dark:border-white/15 bg-transparent px-3 py-2 h-11 focus:outline-none focus:ring-2 focus:ring-[#25D366]/40 dark:focus:ring-[#25D366]/35"
                                     value={countryCode}
                                     onChange={(e) => { setCountryCode(e.target.value); setErrorMessage(""); }}
                                     placeholder="+91"
@@ -70,7 +84,8 @@ export default function Home() {
                                     aria-label="Phone number"
                                     type="tel"
                                     inputMode="tel"
-                                    className="w-full rounded-lg border border-black/10 dark:border-white/15 bg-transparent px-3 py-2 h-11 focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
+                                    className="w-full rounded-lg border border-black/10 dark:border-white/15 bg-transparent px-3 py-2 h-11 focus:outline-none focus:ring-2 focus:ring-[#25D366]/40 dark:focus:ring-[#25D366]/35"
+                                    pattern="^[0-9]+$"
                                     value={phoneNumber}
                                     onChange={(e) => { setPhoneNumber(e.target.value); setErrorMessage(""); }}
                                     placeholder="9876543210"
@@ -85,7 +100,7 @@ export default function Home() {
 
                         <button
                             type="submit"
-                            className="w-full h-11 rounded-lg bg-[#25D366] text-black font-medium hover:opacity-90 transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            className="w-full h-11 rounded-lg bg-[#25D366] text-black font-medium hover:brightness-95 transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-[0_6px_16px_-6px_rgba(37,211,102,0.65)]"
                             aria-label="Open in WhatsApp"
                             disabled={isDisabled}
                         >
