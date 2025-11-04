@@ -55,7 +55,10 @@ export default function Home() {
                                 required
                             />
                         </div>
-                        <p className="text-xs text-black/50 dark:text-white/50">Country code can include &quot;+&quot;. We'll format it for WhatsApp.</p>
+                        {/* eslint-disable-next-line react/no-unescaped-entities */}
+                        <p className="text-xs text-black/50 dark:text-white/50">
+                            Country code can include "+". We'll format it for WhatsApp.
+                        </p>
                     </div>
 
                     <button
