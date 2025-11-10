@@ -44,6 +44,88 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
 
+## Environment Variables
+
+### Required Variables
+
+This project requires two reCAPTCHA environment variables:
+
+1. **`NEXT_PUBLIC_RECAPTCHA_SITE_KEY`** - Public site key (client-side, safe to expose)
+2. **`RECAPTCHA_SECRET_KEY`** - Secret key (server-side only, never expose)
+
+Get both keys from [Google reCAPTCHA Admin Console](https://www.google.com/recaptcha/admin).
+
+### Local Development
+
+Create a `.env.local` file in the root directory:
+
+```bash
+NEXT_PUBLIC_RECAPTCHA_SITE_KEY=your_recaptcha_site_key_here
+RECAPTCHA_SECRET_KEY=your_recaptcha_secret_key_here
+```
+
+**Important:** `.env.local` is already in `.gitignore` and will **NOT** be pushed to git or the server. Never commit sensitive environment variables.
+
+### Cloudflare Workers/Pages Deployment
+
+**Important:** `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` must be available **during build time**, not just runtime.
+
+#### If Using Cloudflare Pages (Automatic CI/CD Builds)
+
+If your site builds automatically via Cloudflare Pages CI/CD:
+1. Go to **Pages** → Your Project → **Settings** → **Environment Variables**
+2. Add `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` as a **Build environment variable** (not just a Production variable)
+3. Make sure it's set for the **Production** environment (or whichever environment you're deploying)
+
+The build environment variables will be available during the build process, so this should work.
+
+#### If Building Locally (Then Deploying)
+
+If you run `npm run deploy` locally, Cloudflare Dashboard env vars **won't be available** during your local build. You need one of these options:
+
+**Option 1: Use `.env.local` (Recommended)**
+- Already set up for local development
+- The variable will be available during `next build`
+
+**Option 2: Add to `wrangler.jsonc`**
+- Add a `vars` section to `wrangler.jsonc`:
+  ```jsonc
+  "vars": {
+    "NEXT_PUBLIC_RECAPTCHA_SITE_KEY": "your_actual_site_key_here"
+  }
+  ```
+- Note: The site key is public anyway, so it's safe to commit to git
+
+**Option 3: Set Environment Variable Before Build**
+```bash
+# Windows (PowerShell)
+$env:NEXT_PUBLIC_RECAPTCHA_SITE_KEY="your_site_key_here"
+npm run deploy
+
+# Linux/Mac
+export NEXT_PUBLIC_RECAPTCHA_SITE_KEY="your_site_key_here"
+npm run deploy
+```
+
+#### For Server-Side Secret (RECAPTCHA_SECRET_KEY)
+
+Set the secret key as a **Wrangler secret** (encrypted and secure):
+
+```bash
+# Set the secret (you'll be prompted to enter the value)
+wrangler secret put RECAPTCHA_SECRET_KEY
+```
+
+Or via the [Cloudflare Dashboard](https://dash.cloudflare.com/):
+1. Go to **Workers & Pages** → Your Worker → **Settings** → **Variables and Secrets**
+2. Add a new **secret** with the name `RECAPTCHA_SECRET_KEY`
+
+**Summary:**
+- ✅ **Site Key in Dashboard**: Works if using Cloudflare Pages CI/CD (set as Build env var)
+- ✅ **Site Key in `wrangler.jsonc`**: Works for local builds (safe to commit, it's public)
+- ✅ **Site Key in `.env.local`**: Works for local builds (not committed to git)
+- ✅ **Secret Key in Dashboard**: Works for runtime (set as a secret)
+
 ## Deploying To Production
 
 | Command                           | Action                                       |
