@@ -9,6 +9,7 @@ export default function Home() {
     const [errorMessage, setErrorMessage] = useState("");
     const [message, setMessage] = useState("");
     const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY as string | undefined;
+    console.log("Recaptcha key:", process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY);
     const { executeRecaptcha } = useGoogleReCaptcha();
     const messageWordCount = useMemo(() => {
         const words = message.trim().split(/\s+/).filter(Boolean);
