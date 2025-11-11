@@ -6,13 +6,19 @@
 	"name": "next-starter-template",
 	"main": ".open-next/worker.js",
 	"compatibility_date": "2025-10-08",
-	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+	"compatibility_flags": [
+		"nodejs_compat",
+		"global_fetch_strictly_public"
+	],
 	"assets": {
 		"binding": "ASSETS",
 		"directory": ".open-next/assets"
 	},
 	"observability": {
 		"enabled": true
+	},
+	"vars": {
+		"NEXT_PUBLIC_RECAPTCHA_SITE_KEY": "6LcvWAMsAAAAAD4QZ_Iizr4qCdbRbSJI7jqPPCnW",
 	},
 	"upload_source_maps": true
 }
