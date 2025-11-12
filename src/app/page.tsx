@@ -9,7 +9,6 @@ export default function Home() {
     const [errorMessage, setErrorMessage] = useState("");
     const [message, setMessage] = useState("");
     const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY as string | undefined;
-    console.log("Recaptcha key:", process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY);
     const { executeRecaptcha } = useGoogleReCaptcha();
     const messageWordCount = useMemo(() => {
         const words = message.trim().split(/\s+/).filter(Boolean);
@@ -31,16 +30,9 @@ export default function Home() {
     const handleSubmit = useCallback(async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        const localDigits = phoneNumber.replace(/[^\d]/g, "");
-        if (localDigits.length < 10) {
-            setErrorMessage("Mobile number must have at least 10 digits (spaces allowed).");
-            return;
-        }
-
         const combined = combineDigits(countryCode, phoneNumber);
-
-        if (!/^\d{10,15}$/.test(combined)) {
-            setErrorMessage("Please enter a valid number: 10–15 digits total after combining.");
+        if (!combined) {
+            setErrorMessage("Please enter a valid number.");
             return;
         }
 
@@ -83,10 +75,8 @@ export default function Home() {
     }, [countryCode, phoneNumber, message, combineDigits, messageWordCount, executeRecaptcha, siteKey]);
 
     const isDisabled = useMemo(() => {
-        const localDigits = phoneNumber.replace(/[^\d]/g, "");
-        if (localDigits.length < 10) return true;
         const combined = combineDigits(countryCode, phoneNumber);
-        return !/^\d{10,15}$/.test(combined);
+        return combined.length === 0;
     }, [countryCode, phoneNumber, combineDigits]);
 
     return (
